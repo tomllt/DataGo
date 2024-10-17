@@ -33,14 +33,40 @@ func (r *DuckdbReader) Read() ([]core.Record, error) {
 	}
 	defer rows.Close()
 
+	columns, err := rows.Columns()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get columns: %w", err)
+	}
+
 	var records []core.Record
 	for rows.Next() {
-		var data interface{}
-		err := rows.Scan(&data)
+		values := make([]interface{}, len(columns))
+		valuePtrs := make([]interface{}, len(columns))
+		for i := range columns {
+			valuePtrs[i] = &values[i]
+		}
+
+		err := rows.Scan(valuePtrs...)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan row: %w", err)
 		}
-		records = append(records, core.Record{Data: data})
+
+		record := make(map[string]interface{})
+		for i, col := range columns {
+			val := values[i]
+			b, ok := val.([]byte)
+			if ok {
+				record[col] = string(b)
+			} else {
+				record[col] = val
+			}
+		}
+
+		records = append(records, core.Record{Data: record})
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error during row iteration: %w", err)
 	}
 
 	return records, nil
