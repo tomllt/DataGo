@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/yourusername/DataGo/core"
-	"github.com/yourusername/DataGo/plugin/reader/duckdb"
-	"github.com/yourusername/DataGo/plugin/writer/stream"
+	"github.com/tomllt/DataGo/core"
+	"github.com/tomllt/DataGo/plugin/reader/duckdb"
+	"github.com/tomllt/DataGo/plugin/writer/stream"
 )
 
 func main() {

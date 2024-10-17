@@ -1,4 +1,4 @@
-# DataGo
+# DataGo (github.com/tomllt/DataGo)
 
 DataGo 是一个基于 GO 语言的开源大数据同步平台。它旨在高效地在各种异构数据源之间迁移数据，为大规模数据传输任务提供可靠、高效且可扩展的解决方案。
 

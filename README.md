@@ -1,4 +1,4 @@
-# DataGo
+# DataGo (github.com/tomllt/DataGo)
 
 DataGo is a GO-based open-source big data synchronization platform. Designed to efficiently migrate data between various heterogeneous data sources, DataGo offers a reliable, efficient, and scalable solution for large-scale data transfer tasks.
 
