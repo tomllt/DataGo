@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/yourusername/DataGo/core"
+	"github.com/tomllt/DataGo/core"
 )
 
 type StreamWriter struct{}

@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/yourusername/DataGo/core"
 	_ "github.com/marcboeker/go-duckdb"
+	"github.com/tomllt/DataGo/core"
 )
 
 type DuckdbReader struct {
