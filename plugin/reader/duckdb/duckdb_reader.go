@@ -13,10 +13,12 @@ type DuckdbReader struct {
 	Query string
 }
 
-func NewDuckdbReader() *DuckdbReader {
+func NewDuckdbReader(params map[string]interface{}) *DuckdbReader {
+	dsn, _ := params["dsn"].(string)
+	query, _ := params["query"].(string)
 	return &DuckdbReader{
-		Dsn:   "test.db",
-		Query: "SELECT * FROM duckdb_extensions()",
+		Dsn:   dsn,
+		Query: query,
 	}
 }
 

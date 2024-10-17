@@ -9,7 +9,7 @@ import (
 
 type StreamWriter struct{}
 
-func NewStreamWriter() *StreamWriter {
+func NewStreamWriter(params map[string]interface{}) *StreamWriter {
 	return &StreamWriter{}
 }
 

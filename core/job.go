@@ -72,13 +72,19 @@ func (j *Job) Run() error {
 }
 
 func CreateReader(config ReaderConfig) (Reader, error) {
-	// Factory method to create reader based on config
-	// This is a placeholder and should be implemented based on your available readers
-	return nil, fmt.Errorf("reader creation not implemented")
+	switch config.Plugin {
+	case "duckdb":
+		return duckdb.NewDuckdbReader(config.Params), nil
+	default:
+		return nil, fmt.Errorf("unknown reader plugin: %s", config.Plugin)
+	}
 }
 
 func CreateWriter(config WriterConfig) (Writer, error) {
-	// Factory method to create writer based on config
-	// This is a placeholder and should be implemented based on your available writers
-	return nil, fmt.Errorf("writer creation not implemented")
+	switch config.Plugin {
+	case "stream":
+		return stream.NewStreamWriter(config.Params), nil
+	default:
+		return nil, fmt.Errorf("unknown writer plugin: %s", config.Plugin)
+	}
 }

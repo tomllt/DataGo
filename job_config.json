@@ -1,0 +1,27 @@
+{
+    "job": {
+        "setting": {
+            "writerThreadNum": 4
+        }
+    },
+    "content": {
+        "reader": {
+            "name": "duckdbReader",
+            "plugin": "duckdb",
+            "params": {
+                "dsn": "test.db",
+                "query": "SELECT * FROM duckdb_extensions()"
+            }
+        },
+        "writer": {
+            "name": "streamWriter",
+            "plugin": "stream",
+            "params": {}
+        },
+        "channel": {
+            "channelClass": "memory",
+            "byteCapacity": 67108864,
+            "recordCapacity": 1000
+        }
+    }
+}
