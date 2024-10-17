@@ -16,7 +16,7 @@ type DuckdbReader struct {
 func NewDuckdbReader() *DuckdbReader {
 	return &DuckdbReader{
 		Dsn:   "test.db",
-		Query: "SELECT * FROM test_table",
+		Query: "SELECT * FROM duckdb_extensions()",
 	}
 }
 
