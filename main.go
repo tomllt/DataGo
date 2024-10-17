@@ -12,8 +12,10 @@ import (
 func main() {
 	// 创建一个新的任务配置
 	conf := &core.JobConfig{
-		Reader: duckdb.NewDuckdbReader(),
-		Writer: stream.NewStreamWriter(),
+		Reader:        duckdb.NewDuckdbReader(),
+		Writer:        stream.NewStreamWriter(),
+		BufferSize:    1000,
+		NumGoroutines: 5,
 	}
 
 	// 创建并运行任务

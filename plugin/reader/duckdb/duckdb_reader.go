@@ -20,25 +20,27 @@ func NewDuckdbReader() *DuckdbReader {
 	}
 }
 
-func (r *DuckdbReader) Read() ([]core.Record, error) {
+func (r *DuckdbReader) Read(recordChan chan<- core.Record) {
 	db, err := sql.Open("duckdb", r.Dsn)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open DuckDB connection: %w", err)
+		fmt.Printf("Failed to open DuckDB connection: %v\n", err)
+		return
 	}
 	defer db.Close()
 
 	rows, err := db.Query(r.Query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute query: %w", err)
+		fmt.Printf("Failed to execute query: %v\n", err)
+		return
 	}
 	defer rows.Close()
 
 	columns, err := rows.Columns()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get columns: %w", err)
+		fmt.Printf("Failed to get columns: %v\n", err)
+		return
 	}
 
-	var records []core.Record
 	for rows.Next() {
 		values := make([]interface{}, len(columns))
 		valuePtrs := make([]interface{}, len(columns))
@@ -48,7 +50,8 @@ func (r *DuckdbReader) Read() ([]core.Record, error) {
 
 		err := rows.Scan(valuePtrs...)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %w", err)
+			fmt.Printf("Failed to scan row: %v\n", err)
+			continue
 		}
 
 		record := make(map[string]interface{})
@@ -62,12 +65,10 @@ func (r *DuckdbReader) Read() ([]core.Record, error) {
 			}
 		}
 
-		records = append(records, core.Record{Data: record})
+		recordChan <- core.Record{Data: record}
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("error during row iteration: %w", err)
+		fmt.Printf("Error during row iteration: %v\n", err)
 	}
-
-	return records, nil
 }
