@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"math"
 	"sync"
 )
 
@@ -18,9 +19,9 @@ type Record struct {
 }
 
 type Job struct {
-	config  *JobConfig
-	reader  Reader
-	writer  Writer
+	config *JobConfig
+	reader Reader
+	writer Writer
 }
 
 func NewJob(config *JobConfig, reader Reader, writer Writer) *Job {
@@ -49,7 +50,7 @@ func (j *Job) Run() error {
 	}()
 
 	// Start multiple writer goroutines
-	numGoroutines := j.config.Job.Setting["writerThreadNum"].(int)
+	numGoroutines := int(math.Floor(j.config.Job.Setting["writerThreadNum"].(float64)))
 	for i := 0; i < numGoroutines; i++ {
 		wg.Add(1)
 		go func() {
