@@ -2,8 +2,6 @@ package core
 
 import (
 	"fmt"
-	"github.com/tomllt/DataGo/plugin/reader/duckdb"
-	"github.com/tomllt/DataGo/plugin/writer/stream"
 	"sync"
 )
 
@@ -20,29 +18,23 @@ type Record struct {
 }
 
 type Job struct {
-	config *JobConfig
+	config  *JobConfig
+	reader  Reader
+	writer  Writer
 }
 
-func NewJob(config *JobConfig) *Job {
-	return &Job{config: config}
+func NewJob(config *JobConfig, reader Reader, writer Writer) *Job {
+	return &Job{
+		config: config,
+		reader: reader,
+		writer: writer,
+	}
 }
 
 func (j *Job) Run() error {
 	fmt.Println("Starting job...")
 
-	readerConfig := j.config.Content.Reader
-	writerConfig := j.config.Content.Writer
 	channelConfig := j.config.Content.Channel
-
-	reader, err := CreateReader(readerConfig)
-	if err != nil {
-		return fmt.Errorf("failed to create reader: %v", err)
-	}
-
-	writer, err := CreateWriter(writerConfig)
-	if err != nil {
-		return fmt.Errorf("failed to create writer: %v", err)
-	}
 
 	recordChan := make(chan Record, channelConfig.RecordCapacity)
 
@@ -52,7 +44,7 @@ func (j *Job) Run() error {
 	// Start the reader goroutine
 	go func() {
 		defer wg.Done()
-		reader.Read(recordChan)
+		j.reader.Read(recordChan)
 		close(recordChan)
 	}()
 
@@ -62,7 +54,7 @@ func (j *Job) Run() error {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			writer.Write(recordChan)
+			j.writer.Write(recordChan)
 		}()
 	}
 
@@ -71,22 +63,4 @@ func (j *Job) Run() error {
 
 	fmt.Println("Job completed")
 	return nil
-}
-
-func CreateReader(config ReaderConfig) (Reader, error) {
-	switch config.Plugin {
-	case "duckdb":
-		return duckdb.NewDuckdbReader(config.Params), nil
-	default:
-		return nil, fmt.Errorf("unknown reader plugin: %s", config.Plugin)
-	}
-}
-
-func CreateWriter(config WriterConfig) (Writer, error) {
-	switch config.Plugin {
-	case "stream":
-		return stream.NewStreamWriter(config.Params), nil
-	default:
-		return nil, fmt.Errorf("unknown writer plugin: %s", config.Plugin)
-	}
 }
