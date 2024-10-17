@@ -1,26 +1,31 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 
 	"github.com/tomllt/DataGo/core"
-	"github.com/tomllt/DataGo/plugin/reader/duckdb"
-	"github.com/tomllt/DataGo/plugin/writer/stream"
 )
 
 func main() {
-	// 创建一个新的任务配置
-	conf := &core.JobConfig{
-		Reader:        duckdb.NewDuckdbReader(),
-		Writer:        stream.NewStreamWriter(),
-		BufferSize:    1000,
-		NumGoroutines: 5,
+	// 从文件中读取配置
+	configData, err := ioutil.ReadFile("job_config.json")
+	if err != nil {
+		log.Fatalf("Failed to read config file: %v", err)
+	}
+
+	// 解析配置
+	var jobConfig core.JobConfig
+	err = json.Unmarshal(configData, &jobConfig)
+	if err != nil {
+		log.Fatalf("Failed to parse config: %v", err)
 	}
 
 	// 创建并运行任务
-	job := core.NewJob(conf)
-	err := job.Run()
+	job := core.NewJob(&jobConfig)
+	err = job.Run()
 	if err != nil {
 		log.Fatalf("Job failed: %v", err)
 	}

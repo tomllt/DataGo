@@ -17,31 +17,32 @@ type Record struct {
 	Data interface{}
 }
 
-type JobConfig struct {
-	Reader        Reader
-	Writer        Writer
-	BufferSize    int
-	NumGoroutines int
-}
-
 type Job struct {
 	config *JobConfig
 }
 
 func NewJob(config *JobConfig) *Job {
-	if config.BufferSize == 0 {
-		config.BufferSize = 1000
-	}
-	if config.NumGoroutines == 0 {
-		config.NumGoroutines = 5
-	}
 	return &Job{config: config}
 }
 
 func (j *Job) Run() error {
 	fmt.Println("Starting job...")
 
-	recordChan := make(chan Record, j.config.BufferSize)
+	readerConfig := j.config.Content.Reader
+	writerConfig := j.config.Content.Writer
+	channelConfig := j.config.Content.Channel
+
+	reader, err := CreateReader(readerConfig)
+	if err != nil {
+		return fmt.Errorf("failed to create reader: %v", err)
+	}
+
+	writer, err := CreateWriter(writerConfig)
+	if err != nil {
+		return fmt.Errorf("failed to create writer: %v", err)
+	}
+
+	recordChan := make(chan Record, channelConfig.RecordCapacity)
 
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -49,16 +50,17 @@ func (j *Job) Run() error {
 	// Start the reader goroutine
 	go func() {
 		defer wg.Done()
-		j.config.Reader.Read(recordChan)
+		reader.Read(recordChan)
 		close(recordChan)
 	}()
 
 	// Start multiple writer goroutines
-	for i := 0; i < j.config.NumGoroutines; i++ {
+	numGoroutines := j.config.Job.Setting["writerThreadNum"].(int)
+	for i := 0; i < numGoroutines; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			j.config.Writer.Write(recordChan)
+			writer.Write(recordChan)
 		}()
 	}
 
@@ -67,4 +69,16 @@ func (j *Job) Run() error {
 
 	fmt.Println("Job completed")
 	return nil
+}
+
+func CreateReader(config ReaderConfig) (Reader, error) {
+	// Factory method to create reader based on config
+	// This is a placeholder and should be implemented based on your available readers
+	return nil, fmt.Errorf("reader creation not implemented")
+}
+
+func CreateWriter(config WriterConfig) (Writer, error) {
+	// Factory method to create writer based on config
+	// This is a placeholder and should be implemented based on your available writers
+	return nil, fmt.Errorf("writer creation not implemented")
 }
