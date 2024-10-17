@@ -3,15 +3,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
-
 	"github.com/tomllt/DataGo/core"
+	"log"
+	"os"
 )
 
 func main() {
 	// 从文件中读取配置
-	configData, err := ioutil.ReadFile("/Users/tomllt/github-projects/go/DataGo/job_config.json")
+	configData, err := os.ReadFile("job_config.json")
 	if err != nil {
 		log.Fatalf("Failed to read config file: %v", err)
 	}

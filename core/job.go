@@ -2,6 +2,8 @@ package core
 
 import (
 	"fmt"
+	"github.com/tomllt/DataGo/plugin/reader/duckdb"
+	"github.com/tomllt/DataGo/plugin/writer/stream"
 	"sync"
 )
 
