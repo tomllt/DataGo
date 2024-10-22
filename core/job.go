@@ -18,29 +18,10 @@ type Record struct {
 	Data interface{}
 }
 
-type Monitor interface {
-    Start() error
-    Stop() error
-    ReportMetrics() Metrics
-}
-
-type Alert interface {
-    Trigger(message string) error
-}
-
-type Metrics struct {
-    JobID      string
-    Status     string
-    Progress   float64
-    Errors     []string
-}
-
 type Job struct {
-	config  *JobConfig
-	reader  Reader
-	writer  Writer
-	monitor Monitor
-	alert   Alert
+	config *JobConfig
+	reader Reader
+	writer Writer
 }
 
 func NewJob(config *JobConfig, reader Reader, writer Writer) *Job {
@@ -61,11 +42,7 @@ func (j *Job) Run() error {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	// Start the monitoring
-	if err := j.monitor.Start(); err != nil {
-		fmt.Printf("Failed to start monitor: %v\n", err)
-		return err
-	}
+	// Start the reader goroutine
 	go func() {
 		defer wg.Done()
 		j.reader.Read(recordChan)
@@ -85,10 +62,6 @@ func (j *Job) Run() error {
 	// Wait for all goroutines to finish
 	wg.Wait()
 
-		j.monitor.ReportMetrics() // Reporting metrics after completion
-		fmt.Println("Job completed")
-		if err := j.monitor.Stop(); err != nil {
-			fmt.Printf("Failed to stop monitor: %v\n", err)
-		}
+	fmt.Println("Job completed")
 	return nil
 }

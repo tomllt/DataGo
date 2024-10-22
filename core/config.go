@@ -25,10 +25,8 @@ type ChannelConfig struct {
 }
 
 type JobConfig struct {
-	Job      JobSettings `json:"job"`
-	Content  Content     `json:"content"`
-	Monitor  string      `json:"monitor"` // Monitor type configuration
-	Alert    string      `json:"alert"`   // Alert type configuration
+	Job     JobSettings `json:"job"`
+	Content Content     `json:"content"`
 }
 
 type JobSettings struct {
